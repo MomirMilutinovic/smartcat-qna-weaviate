@@ -12,10 +12,11 @@ services:
       - '10000s'
       - --write-timeout
       - '10000s'
-    image: semitechnologies/weaviate:1.22.4
+    image: semitechnologies/weaviate:1.23.9
     restart: on-failure:0
     ports:
-     - "9999:8080"
+     - 9999:8080
+     - 50051:50051
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
