@@ -15,7 +15,7 @@ class SmartcatSpider(scrapy.Spider):
         soup = BeautifulSoup(html, 'lxml')
 
         for link in soup.find_all("a"):
-            if link["href"].startswith('https://smartcat.io'):
+            if link["href"].startswith('https://smartcat.io') and not 'blog' in link["href"] and link["href"] != response.url:
                 yield response.follow(link["href"], callback=self.parse)
 
         self.remove_useless_elements(soup)
