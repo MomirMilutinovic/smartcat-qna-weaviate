@@ -11,6 +11,11 @@ class SmartcatSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
+        """
+        Extracts the text and title from the page and stores it in a dictionary.
+        It also follows all the links on the page that are part of the
+        smartcat.io domain and that do not point to the blog.
+        """
         html = response.body
         soup = BeautifulSoup(html, 'lxml')
 
@@ -31,6 +36,9 @@ class SmartcatSpider(scrapy.Spider):
 
     @staticmethod
     def remove_useless_elements(soup):
+        """
+        Removes elements that are not relevant to the content of the page.
+        """
         if soup.header is not None:
             soup.header.decompose()
         if soup.footer is not None:

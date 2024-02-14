@@ -8,6 +8,13 @@ import re
 
 
 def get_chunks_fixed_size_with_overlap(text: str, chunk_size: int, overlap_size: int) -> List[str]:
+    """
+    Splits the text into chunks of a fixed word count with overlap.
+    :param text: The text to be split into chunks.
+    :param chunk_size: The size of the chunks.
+    :param overlap_size: The size of the overlap.
+    :return: A list of chunks.
+    """
     source_text = re.sub(r"\s+", " ", text)  # Remove multiple whitespaces
     text_words = re.split(r"\s", source_text)  # Split text by single whitespace
 
@@ -18,6 +25,13 @@ def get_chunks_fixed_size_with_overlap(text: str, chunk_size: int, overlap_size:
     return chunks
 
 def get_chunks_by_delimiter_with_minimum_size(text: str, delimiter_regex: str = '\n{7,}', minimum_size=125) -> List[str]:
+    """
+    Splits the text into chunks of a minimum word count by a delimiter.
+    :param text: The text to be split into chunks.
+    :param delimiter_regex: The delimiter regex.
+    :param minimum_size: The minimum size of the chunks.
+    :return: A list of chunks.
+    """
     delimiter_chunks = re.split(delimiter_regex, text)
     delimiter_chunks = [re.sub(r"\s+", " ", chunk) for chunk in delimiter_chunks]
 
@@ -36,7 +50,12 @@ def get_chunks_by_delimiter_with_minimum_size(text: str, delimiter_regex: str = 
 
     return chunks
 
-def chunk(article):
+def chunk(article: dict) -> List[str]:
+    """
+    Chunks the article into smaller parts.
+    :param article: The article to be chunked.
+    :return: A list of chunks.
+    """
     if len(article['sections']) > 1:
         return itertools.chain.from_iterable(get_chunks_by_delimiter_with_minimum_size(section) for section in article['sections'])
 

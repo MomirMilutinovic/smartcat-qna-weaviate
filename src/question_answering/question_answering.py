@@ -43,11 +43,21 @@ qa = ConversationalRetrievalChain.from_llm(
 
 
 def generate_response(question: str, chat_history: list) -> str:
+    """
+    Queries the vector store for the most relevant chunks of pages and
+    generates a response using a LLM.
+    :param question: The question to be answered.
+    :param chat_history: The chat history.
+    :return: The response to the question.
+    """
     result = qa.invoke({"question": question, "chat_history": chat_history})
     chat_history = [(question, result["answer"])]
     return result["answer"]
 
 def reset_memory():
+    """
+    Resets the memory of the LLM.
+    """
     memory.clear()
 
 if __name__ == "__main__":
