@@ -29,7 +29,6 @@ def clear_chat_history():
     reset_memory()
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-# Function for generating LLaMA2 response. Refactored from https://github.com/a16z-infra/llama2-chatbot
 def generate_response(prompt_input):
     chat_history = [message["content"] for message in st.session_state.messages][1:]
     return generate_rag_response(prompt_input, chat_history)
