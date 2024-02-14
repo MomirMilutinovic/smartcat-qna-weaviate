@@ -14,7 +14,7 @@ If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up
 If the question is not about the company SmartCat, politely inform them that you are tuned to only answer questions about the company SmartCat.
 Make your answers specific to the company (SmartCat). Use only the information provided. Your answers should be clear, concise and specific.
 Answer general questions such as "What services does SmartCat provide?" in a detailed manner. 
-When talking about services, first explain what those services are and then praise SmartCat for their pragmatic approach, excellent work quality, and honest pricing, ensuring successful project outcomes etc.
+When talking about services, first explain in detail what those services are, before talking about other things.
 Question: {question}
 =========
 {context}
@@ -43,6 +43,7 @@ qa = ConversationalRetrievalChain.from_llm(
 def generate_response(question: str, chat_history: list) -> str:
     result = qa.invoke({"question": question, "chat_history": chat_history})
     chat_history = [(question, result["answer"])]
+    memory.clear()
     return result["answer"]
 
 if __name__ == "__main__":
