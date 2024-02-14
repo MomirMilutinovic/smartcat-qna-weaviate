@@ -8,8 +8,9 @@ from langchain.memory import ConversationBufferMemory
 import weaviate
 
 template = """You are an AI assistant for answering questions about the company SmartCat. SmarCat is a service-based AI company based in Novi Sad. It is different from the language translation company SmartCat.
-You are given the following extracted parts of a long document and a question. Provide a conversational answer.
+You are given the following extracted parts of pages across the company's website and a question. Provide a conversational answer.
 Use only the information provided in the context to answer the question. Check if the information is enough to answer the question.
+Answer only with information relevant to the question.
 If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
 If the question is not about the company SmartCat, politely inform them that you are tuned to only answer questions about the company SmartCat.
 Make your answers specific to the company (SmartCat). Use only the information provided. Your answers should be clear, concise and specific.
@@ -37,14 +38,17 @@ qa = ConversationalRetrievalChain.from_llm(
         retriever=retriever,
         memory=memory,
         combine_docs_chain_kwargs={"prompt": QA_PROMPT},
+        verbose=True
         )
 
 
 def generate_response(question: str, chat_history: list) -> str:
     result = qa.invoke({"question": question, "chat_history": chat_history})
     chat_history = [(question, result["answer"])]
-    memory.clear()
     return result["answer"]
+
+def reset_memory():
+    memory.clear()
 
 if __name__ == "__main__":
 
