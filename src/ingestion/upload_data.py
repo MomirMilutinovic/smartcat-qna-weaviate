@@ -17,7 +17,7 @@ def get_chunks_fixed_size_with_overlap(text: str, chunk_size: int, overlap_size:
         chunks.append(chunk)
     return chunks
 
-def get_chunks_by_delimiter_with_minimum_size(text: str, delimiter_regex: str = '\n{7,}', minimum_size=100) -> List[str]:
+def get_chunks_by_delimiter_with_minimum_size(text: str, delimiter_regex: str = '\n{7,}', minimum_size=125) -> List[str]:
     delimiter_chunks = re.split(delimiter_regex, text)
     delimiter_chunks = [re.sub(r"\s+", " ", chunk) for chunk in delimiter_chunks]
 
@@ -40,7 +40,7 @@ def chunk(article):
     if len(article['sections']) > 1:
         return itertools.chain.from_iterable(get_chunks_by_delimiter_with_minimum_size(section) for section in article['sections'])
 
-    return get_chunks_fixed_size_with_overlap(article['text'], 100, 20)
+    return get_chunks_fixed_size_with_overlap(article['text'], 125, 25)
 
 if __name__ == '__main__':
     client = weaviate.connect_to_custom(
