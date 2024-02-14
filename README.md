@@ -1,3 +1,10 @@
+
+
+
+https://github.com/MomirMilutinovic/smartcat-qna-weaviate/assets/40830508/fc7b0b52-d174-418e-848c-bade5c06abe0
+
+
+
 # smartcat-qna-weaviate
 A RAG chatbot that answers questions about [SmartCat](https://smartcat.io).
 
