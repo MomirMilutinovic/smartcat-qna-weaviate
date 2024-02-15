@@ -87,20 +87,30 @@ if __name__ == '__main__':
     with open('articles.json') as f:
         data = json.load(f)
 
+    chunked_articles = [
+        {
+            'title': article['title'],
+            'chunk': text_chunk,
+            'chunk_index': chunk_i
+        }
+        for article in data
+        for chunk_i, text_chunk in enumerate(chunk(article))
+    ]
+
+    unique_chunks = []
+    for chunk in chunked_articles:
+        if chunk['chunk'] not in [c['chunk'] for c in unique_chunks]:
+            unique_chunks.append(chunk)
+        else:
+            print('Duplicate chunk:', chunk['chunk'])
+
     with collection.batch.dynamic() as batch:
-        for i, article in enumerate(data):
-            print(f'importing article: {i + 1}', article['title'])
-            for chunk_i, text_chunk in enumerate(chunk(article)):
-                properties = {
-                    'title': article['title'],
-                    'chunk': text_chunk,
-                    'chunk_index': chunk_i
-                }
-                batch.add_object(
-                    properties=properties,
-                )
-                print('=' * 30)
-                print('Imported chunk:', text_chunk)
+        for chunk in unique_chunks:
+            batch.add_object(
+                properties=chunk,
+            )
+            print('=' * 30)
+            print('Imported chunk:', text_chunk)
 
     print('Testing if data was imported correctly with a query: open job positions')
     response = collection.query.near_text(
