@@ -7,6 +7,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 import weaviate
 
+
 template = """You are an AI assistant for answering questions about the company SmartCat. SmarCat is a service-based AI company based in Novi Sad. It is different from the language translation company SmartCat.
 You are given the following extracted parts of pages across the company's website and a question. Provide a conversational answer.
 Use only the information provided in the context to answer the question. Check if the information is enough to answer the question.
@@ -16,6 +17,8 @@ If the question is not about the company SmartCat, politely inform them that you
 Make your answers specific to the company (SmartCat). Use only the information provided. Your answers should be clear, concise and specific.
 Answer general questions such as "What services does SmartCat provide?" in a detailed manner. 
 When talking about services, first explain in detail what those services are, before talking about other things.
+When asked about a specific open job position, provide a detailed answer that includes a high level description, the requirements, technology stack, and benefits, in that order.
+When asked about all job positions, provide a list of all open job positions.
 Question: {question}
 =========
 {context}
@@ -34,12 +37,11 @@ memory = ConversationBufferMemory(
     memory_key="chat_history", return_messages=True)
 
 qa = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=retriever,
-        memory=memory,
-        combine_docs_chain_kwargs={"prompt": QA_PROMPT},
-        verbose=True
-        )
+    llm=llm,
+    retriever=retriever,
+    memory=memory,
+    combine_docs_chain_kwargs={"prompt": QA_PROMPT}
+)
 
 
 def generate_response(question: str, chat_history: list) -> str:
