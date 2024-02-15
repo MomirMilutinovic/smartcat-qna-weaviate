@@ -110,7 +110,7 @@ if __name__ == '__main__':
                 properties=chunk,
             )
             print('=' * 30)
-            print('Imported chunk:', text_chunk)
+            print('Imported chunk:', chunk['chunk'])
 
     print('Testing if data was imported correctly with a query: open job positions')
     response = collection.query.near_text(
