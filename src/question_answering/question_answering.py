@@ -57,7 +57,7 @@ retriever = ParentDocumentRetriever(
     child_splitter=placholder_splitter,
 )
 
-llm = Cohere(model="command", max_tokens=4096, temperature=0)
+llm = Cohere(model="command-nightly", max_tokens=8192, temperature=0)
 
 memory = ConversationBufferMemory(
     memory_key="chat_history", return_messages=True)
