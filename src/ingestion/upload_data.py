@@ -80,7 +80,8 @@ if __name__ == '__main__':
         properties=[
             wvcc.Property(name="title", data_type=wvcc.DataType.TEXT),
             wvcc.Property(name="chunk", data_type=wvcc.DataType.TEXT),
-            wvcc.Property(name="chunk_index", data_type=wvcc.DataType.INT, skip_vectorization=True)
+            wvcc.Property(name="chunk_index", data_type=wvcc.DataType.INT, skip_vectorization=True),
+            wvcc.Property(name="doc_id", data_type=wvcc.DataType.UUID, skip_vectorization=True)
         ]
     )
 
