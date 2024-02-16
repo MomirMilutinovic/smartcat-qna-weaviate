@@ -6,9 +6,10 @@ from langchain.chains import (
 from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain_community.document_loaders import JSONLoader
-from langchain.retrievers import ParentDocumentRetriever
+from langchain.retrievers import ParentDocumentRetriever, BM25Retriever
 from langchain.storage import InMemoryStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.retrievers import EnsembleRetriever
 import weaviate
 import json
 
@@ -53,10 +54,16 @@ store = InMemoryStore()
 store.mset([(document_ids[i], docs[i]) for i in range(len(docs))])
 
 placholder_splitter = RecursiveCharacterTextSplitter(chunk_size=400)
-retriever = ParentDocumentRetriever(
+document_retriever = ParentDocumentRetriever(
     vectorstore=vectorstore,
     docstore=store,
     child_splitter=placholder_splitter,
+)
+bm_25_retriever = BM25Retriever.from_documents(docs)
+
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[document_retriever, bm_25_retriever],
+    weights=[0.5, 0.5]
 )
 
 llm = Cohere(model="command-nightly", max_tokens=8192, temperature=0)
@@ -66,9 +73,10 @@ memory = ConversationBufferMemory(
 
 qa = ConversationalRetrievalChain.from_llm(
     llm=llm,
-    retriever=retriever,
+    retriever=ensemble_retriever,
     memory=memory,
-    combine_docs_chain_kwargs={"prompt": QA_PROMPT}
+    combine_docs_chain_kwargs={"prompt": QA_PROMPT},
+    verbose=True
 )
 
 
