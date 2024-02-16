@@ -2,6 +2,7 @@ from pathlib import Path
 
 import scrapy
 import re
+import uuid
 from bs4 import BeautifulSoup
 
 class SmartcatSpider(scrapy.Spider):
@@ -27,6 +28,7 @@ class SmartcatSpider(scrapy.Spider):
         text = soup.find('div', {'id': 'page'}).get_text()
         sections = [section.get_text() for section in soup.find_all('section')]
         yield {
+            'doc_id': str(uuid.uuid4()),
             'url': response.url,
             'title': response.css('title::text').re('(.*) - SmartCat')[0],
             'text': text,
