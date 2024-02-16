@@ -5,7 +5,12 @@ from langchain.chains import (
 )
 from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
+from langchain_community.document_loaders import JSONLoader
+from langchain.retrievers import ParentDocumentRetriever
+from langchain.storage import InMemoryStore
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 import weaviate
+import json
 
 
 template = """You are an AI assistant for answering questions about the company SmartCat. SmarCat is a service-based AI company based in Novi Sad. It is different from the language translation company SmartCat.
@@ -28,9 +33,29 @@ Answer in Markdown:"""
 QA_PROMPT = PromptTemplate(template=template, input_variables=[
                         "question", "context"])
 
+with open('articles.json') as f:
+    document_ids = [document['doc_id'] for document in json.load(f)]
+
+loader = JSONLoader(
+    file_path='articles.json',
+    jq_schema='.[].text',
+    text_content=False)
+
+docs = loader.load()
+
 client = weaviate.Client("http://localhost:9999")
 
-retriever = Weaviate(client, "Article", "chunk").as_retriever(k=10)
+vectorstore = Weaviate(client, "Article", "chunk", attributes=["doc_id"])
+
+store = InMemoryStore()
+store.mset([(document_ids[i], docs[i]) for i in range(len(docs))])
+
+placholder_splitter = RecursiveCharacterTextSplitter(chunk_size=400)
+retriever = ParentDocumentRetriever(
+    vectorstore=vectorstore,
+    docstore=store,
+    child_splitter=placholder_splitter,
+)
 
 llm = Cohere(model="command", max_tokens=4096, temperature=0)
 
