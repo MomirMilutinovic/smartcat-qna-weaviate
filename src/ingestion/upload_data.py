@@ -89,6 +89,7 @@ if __name__ == '__main__':
 
     chunked_articles = [
         {
+            'doc_id': article['doc_id'],
             'title': article['title'],
             'chunk': text_chunk,
             'chunk_index': chunk_i
