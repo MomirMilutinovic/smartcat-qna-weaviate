@@ -6,7 +6,7 @@ https://github.com/MomirMilutinovic/smartcat-qna-weaviate/assets/40830508/197121
 # smartcat-qna-weaviate
 A RAG chatbot that answers questions about [SmartCat](https://smartcat.io), an AI company based in Novi Sad, Serbia.
 
-The chatbot bases its answers on the articles on the company's website. The pages are scraped, chunked and stored in a [Weaviate](https://github.com/weaviate/weaviate) vector database beforehand. The pages are fed to a [Cohere](https://cohere.com) LLM to generate the answers to the questions.
+The chatbot bases its answers on articles scraped from SmartCat's website. The web pages are chunked and stored in a [Weaviate](https://github.com/weaviate/weaviate) vector database. Pages relevant to the user's question are fetched based on a hybrid search over chunks and entire pages. The resulting pages are fed to a [Cohere](https://cohere.com) LLM to generate an answer to the user's question.
 
 ## Prerequisites
 - Docker 
@@ -36,7 +36,7 @@ pip install -r requirements.txt
 export COHERE_API_KEY=<your_cohere_api_key>
 ```
 ## Usage instructions
-1. Start up Weaviate: `docker compose up -d`. Once completed, Weaviate is running on [`http://localhost:9999`]().
+1. Start up Weaviate: `docker compose up -d`. Once completed, Weaviate will run on [`http://localhost:9999`]().
 2. Download the pages from  [SmartCat](https://smartcat.io)'s website:
 ```
 scrapy runspider src/ingestion/smartcat_spider.py -O articles.json
@@ -45,12 +45,7 @@ scrapy runspider src/ingestion/smartcat_spider.py -O articles.json
 4. Start the Streamlit app: `streamlit run src/streamlit/app.py`. The app should be running on [`http://localhost:8501`]() once it starts up.
 
 ## Limitations
-- Even though the chatbot queries the Weaviate database before it generates its answer, it may include inaccurate information in its answers.
-- The chatbot may disregard instructions in its system prompt in longer conversations
-
-These problems likely stem from the way pages are stored in the database and presented to the LLM. The LLM receives chunks of possibly disparate pages. Firstly, these chunks may contain insufficient information. Secondly, they could also confuse the LLM as they are not cohesive.
-
-Fetching entire pages may improve the chatbot's performance.
+Parts of the chatbot's answers may be inaccurate.
 
 ## Disclaimer
 This project is not affiliated with SmartCat in any way. It should not be used as a source of truth for any information about SmartCat.
