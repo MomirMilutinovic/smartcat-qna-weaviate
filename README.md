@@ -1,12 +1,10 @@
 
 
-
-https://github.com/MomirMilutinovic/smartcat-qna-weaviate/assets/40830508/fc7b0b52-d174-418e-848c-bade5c06abe0
-
+https://github.com/MomirMilutinovic/smartcat-qna-weaviate/assets/40830508/197121dc-15fa-4232-9af9-a9a20387509d
 
 
 # smartcat-qna-weaviate
-A RAG chatbot that answers questions about [SmartCat](https://smartcat.io).
+A RAG chatbot that answers questions about [SmartCat](https://smartcat.io), an AI company based in Novi Sad, Serbia.
 
 The chatbot bases its answers on the articles on the company's website. The pages are scraped, chunked and stored in a [Weaviate](https://github.com/weaviate/weaviate) vector database beforehand. The pages are fed to a [Cohere](https://cohere.com) LLM to generate the answers to the questions.
 
