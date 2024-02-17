@@ -5,7 +5,13 @@ from langchain.chains import (
 )
 from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
+from langchain_community.document_loaders import JSONLoader
+from langchain.retrievers import ParentDocumentRetriever, BM25Retriever
+from langchain.storage import InMemoryStore
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.retrievers import EnsembleRetriever
 import weaviate
+import json
 
 
 template = """You are an AI assistant for answering questions about the company SmartCat. SmarCat is a service-based AI company based in Novi Sad. It is different from the language translation company SmartCat.
@@ -20,6 +26,8 @@ When talking about services, first explain in detail what those services are, be
 When asked about a specific open job position, provide a detailed answer that includes a high level description, the requirements, technology stack, and benefits, in that order.
 When asked about all job positions, provide a list of all open job positions and do not go into the details of each job position.
 At the end of each answer, tell the user that it's best to verify the most up-to-date information on SmartCat's official website.
+If a job does not mention a specific number of years of experience, don't make up a number. Just say that you need extensive experience with what is mentioned in the job posting.
+When listing technologies, list them in the order they are mentioned in the job posting. Only list technologies that are mentioned in the job posting. Don't make up technologies.
 Question: {question}
 =========
 {context}
@@ -28,20 +36,47 @@ Answer in Markdown:"""
 QA_PROMPT = PromptTemplate(template=template, input_variables=[
                         "question", "context"])
 
+with open('articles.json') as f:
+    document_ids = [document['doc_id'] for document in json.load(f)]
+
+loader = JSONLoader(
+    file_path='articles.json',
+    jq_schema='.[].text',
+    text_content=False)
+
+docs = loader.load()
+
 client = weaviate.Client("http://localhost:9999")
 
-retriever = Weaviate(client, "Article", "chunk").as_retriever(k=10)
+vectorstore = Weaviate(client, "Article", "chunk", attributes=["doc_id"])
 
-llm = Cohere(model="command", max_tokens=4096, temperature=0)
+store = InMemoryStore()
+store.mset([(document_ids[i], docs[i]) for i in range(len(docs))])
+
+placholder_splitter = RecursiveCharacterTextSplitter(chunk_size=400)
+document_retriever = ParentDocumentRetriever(
+    vectorstore=vectorstore,
+    docstore=store,
+    child_splitter=placholder_splitter,
+)
+bm_25_retriever = BM25Retriever.from_documents(docs)
+
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[document_retriever, bm_25_retriever],
+    weights=[0.5, 0.5]
+)
+
+llm = Cohere(model="command-nightly", max_tokens=8192, temperature=0)
 
 memory = ConversationBufferMemory(
     memory_key="chat_history", return_messages=True)
 
 qa = ConversationalRetrievalChain.from_llm(
     llm=llm,
-    retriever=retriever,
+    retriever=ensemble_retriever,
     memory=memory,
-    combine_docs_chain_kwargs={"prompt": QA_PROMPT}
+    combine_docs_chain_kwargs={"prompt": QA_PROMPT},
+    verbose=True
 )
 
 
